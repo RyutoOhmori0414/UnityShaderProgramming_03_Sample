@@ -18,6 +18,9 @@ float  _Shiness;
 
 v2f vert(appdata_base v)
 {
+    // Groundシェーディングではvertexシェーダで、Colorを計算しています
+    // ポリゴンが多いオブジェクトだと不都合が起こりづらく、計算量も大幅に削減できる
+    
     v2f o;
 
     o.vertex  = UnityObjectToClipPos(v.vertex);

@@ -36,9 +36,13 @@ fixed4 frag(v2f i) : SV_Target
                               _WorldSpaceLightPos0.xyz :
                               _WorldSpaceLightPos0.xyz - i.vertexW);
     float3 view   = normalize(_WorldSpaceCameraPos - i.vertexW);
+    // 光源ベクトルと視線ベクトルの半分のハーフベクトルを計算する
     float3 hlf    = normalize(light + view);
 
     float  diffuse  = saturate(dot(normal, light));
+    // ハーフベクトルと法線ベクトルの内積でハイライトを計算する
+    // 反射ベクトルを求めないことでPhongより計算量が少ない
+    // Phongよりもリアルな表現に近づく
     float  specular = pow(saturate(dot(normal, hlf)), _Shiness);
     float3 ambient  = ShadeSH9(half4(normal, 1));
 

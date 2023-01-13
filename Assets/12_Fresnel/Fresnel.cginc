@@ -5,6 +5,9 @@
 #include "Lighting.cginc"
 #include "AutoLight.cginc"
 
+// フレネル反射とは、光が異なる屈折率を持つ物質へ入射するとき
+// 入射角が垂直に近いほど屈折(侵入)する光が大きくなり、水平に近いほど反射する光が多くなります
+
 struct v2f
 {
     float4 vertex  : SV_POSITION;
@@ -17,15 +20,18 @@ float4 _SpecularColor;
 float  _Shiness;
 float  _Fresnel;
 
+// フレネルによって提唱された算出方法は、計算量などを理由にゲームで用いられることはほぼありません
+// 普通は近似した値を返す式を使用します。
 float fresnelSchlick(float3 view, float3 normal, float fresnel)
 {
     return saturate(fresnel + (1 - fresnel) * pow(1 - dot(view, normal), 5));
-}
+} // こちらはSchlickが提唱した方程式を実装したものです
 
 float fresnelFast(float3 view, float3 normal, float fresnel)
 {
     return saturate(fresnel + (1 - fresnel) * exp(-6 * dot(view, normal)));
-}
+} //こちらは「Far Cry 3」が採用したものです。
+// どちらもfrenelという引数には物質ごとの反射率を与えます
 
 v2f vert(appdata_base v)
 {
@@ -57,6 +63,8 @@ fixed4 frag(v2f i) : SV_Target
     fixed4 color = diffuse * _MainColor * _LightColor0 * attenuation
                  + specular * _SpecularColor * _LightColor0 * attenuation;
 
+    // フレネル反射は鏡面反射のため、_specularColorを反映します。
+    // 基本的に鏡面反射は物質の色に影響されない
     color.rgb += ambient * _MainColor
                + ambient * _SpecularColor * fresnel;
 
